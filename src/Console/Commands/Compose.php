@@ -2,6 +2,8 @@
 
 namespace CoenJacobs\Mozart\Console\Commands;
 
+use CoenJacobs\Mozart\Composer\Autoload\Classmap;
+use CoenJacobs\Mozart\Composer\Autoload\NamespaceAutoloader;
 use CoenJacobs\Mozart\Composer\Package;
 use CoenJacobs\Mozart\Mover;
 use CoenJacobs\Mozart\Replacer;
@@ -60,6 +62,13 @@ class Compose extends Command
         $config = $composer->extra->mozart;
 
         $config->dep_namespace = preg_replace("/\\\{2,}$/", "\\", "$config->dep_namespace\\");
+
+        // version 0.7.1-devlop
+        $vendorDir = 'vendor';
+        if (isset($composer->config) && isset($composer->config->{'vendor-dir'})) {
+            $vendorDir = $composer->config->{'vendor-dir'};
+        }
+        $config->vendor_dir = $vendorDir;
 
         $this->config = $config;
 
@@ -168,7 +177,7 @@ class Compose extends Command
         $packages = [];
 
         foreach ($slugs as $package_slug) {
-            $packageDir = $this->workingDir . DIRECTORY_SEPARATOR . 'vendor'
+            $packageDir = $this->workingDir . DIRECTORY_SEPARATOR . $this->config->vendor_dir
                           . DIRECTORY_SEPARATOR . $package_slug . DIRECTORY_SEPARATOR;
 
             if (! is_dir($packageDir)) {
